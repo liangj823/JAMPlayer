@@ -1,0 +1,35 @@
+package com.amplayer.portable;
+import android.content.*;
+import android.content.res.Resources;
+import java.util.*;
+final class L10n {
+ private static volatile int cached=-1;
+ static String system(){return Resources.getSystem().getConfiguration().getLocales().get(0).toLanguageTag();}
+ static int language(Context c){if(cached<0)refresh(c);return cached;}
+ static void refresh(Context c){String value=Store.load(c).optString("language","auto");if(value.equals("auto"))value=system();cached=resolve(value);}
+ static int resolve(String tag){String value=(tag==null?"en":tag).replace('_','-').toLowerCase(Locale.ROOT);String base=value.split("-")[0];switch(base){case "zh":return value.contains("hant")||value.contains("tw")||value.contains("hk")||value.contains("mo")?0:1;case "ja":return 3;case "ko":return 4;case "fr":return 5;case "es":return 6;case "pt":return 7;case "de":return 8;case "vi":return 9;case "th":return 10;case "id":case "in":return 11;default:return 2;}}
+
+ static String text(Context c,String key){String[] values;
+  switch(key){
+   case "confirm":values=new String[]{"確定","确定","Confirm","確認","확인","Confirmer","Confirmar","Confirmar","Bestätigen","Xác nhận","ยืนยัน","Konfirmasi"};break;
+   case "cancel":values=new String[]{"取消","取消","Cancel","キャンセル","취소","Annuler","Cancelar","Cancelar","Abbrechen","Hủy","ยกเลิก","Batal"};break;
+   case "playback":values=new String[]{"音樂播放","音乐播放","Audio playback","音楽再生","음악 재생","Lecture audio","Reproducción de audio","Reprodução de áudio","Audiowiedergabe","Phát âm thanh","การเล่นเสียง","Pemutaran audio"};break;
+   case "playing":values=new String[]{"播放中","播放中","Playing","再生中","재생 중","Lecture en cours","Reproduciendo","Reproduzindo","Wiedergabe läuft","Đang phát","กำลังเล่น","Sedang diputar"};break;
+   case "paused":values=new String[]{"已暫停","已暂停","Paused","一時停止","일시 정지","En pause","En pausa","Pausado","Pausiert","Đã tạm dừng","หยุดชั่วคราว","Dijeda"};break;
+   case "connecting":values=new String[]{"連線中…","连接中…","Connecting…","接続中…","연결 중…","Connexion…","Conectando…","Conectando…","Verbindung wird hergestellt…","Đang kết nối…","กำลังเชื่อมต่อ…","Menghubungkan…"};break;
+   case "play":values=new String[]{"播放","播放","Play","再生","재생","Lire","Reproducir","Reproduzir","Abspielen","Phát","เล่น","Putar"};break;
+   case "pause":values=new String[]{"暫停","暂停","Pause","一時停止","일시 정지","Pause","Pausar","Pausar","Pausieren","Tạm dừng","หยุดชั่วคราว","Jeda"};break;
+   case "previous":values=new String[]{"上一台／首","上一台／首","Previous","前へ","이전","Précédent","Anterior","Anterior","Zurück","Trước","ก่อนหน้า","Sebelumnya"};break;
+   case "next":values=new String[]{"下一台／首","下一台／首","Next","次へ","다음","Suivant","Siguiente","Próximo","Weiter","Tiếp","ถัดไป","Berikutnya"};break;
+   case "close":values=new String[]{"關閉","关闭","Close","閉じる","닫기","Fermer","Cerrar","Fechar","Schließen","Đóng","ปิด","Tutup"};break;
+   case "backgroundClose":values=new String[]{"背景自動關閉倒數","后台自动关闭倒计时","Background auto-off countdown","バックグラウンド自動終了まで","백그라운드 자동 종료 카운트다운","Arrêt automatique en arrière-plan dans","Cierre automático en segundo plano en","Encerramento automático em segundo plano em","Automatisches Beenden im Hintergrund in","Tự tắt khi chạy nền sau","ปิดอัตโนมัติเบื้องหลังใน","Penutupan otomatis latar belakang dalam"};break;
+   case "sleep":values=new String[]{"睡眠定時倒數","睡眠定时倒计时","Sleep timer countdown","スリープタイマー残り時間","취침 타이머 카운트다운","Minuterie de veille : temps restant","Temporizador: tiempo restante","Temporizador: tempo restante","Schlummertimer: verbleibende Zeit","Hẹn giờ ngủ: thời gian còn lại","เวลาหยุดเล่นที่เหลือ","Timer tidur: waktu tersisa"};break;
+   case "focus":values=new String[]{"其他程式正在使用音訊","其他应用正在使用音频","Audio is busy in another app","他のアプリが音声を使用中です","다른 앱이 오디오를 사용 중입니다","Une autre application utilise l’audio","Otra aplicación está usando el audio","Outro aplicativo está usando o áudio","Eine andere App verwendet Audio","Ứng dụng khác đang dùng âm thanh","แอปอื่นกำลังใช้เสียง","Audio sedang digunakan aplikasi lain"};break;
+   case "local":values=new String[]{"請在這部裝置重新加入音樂","请在此设备重新添加音乐","Add this music again on this device","この端末で音楽を追加してください","이 기기에서 음악을 다시 추가하세요","Ajoutez à nouveau cette musique sur cet appareil","Vuelve a añadir esta música en este dispositivo","Adicione esta música novamente neste dispositivo","Diese Musik auf diesem Gerät erneut hinzufügen","Thêm lại nhạc này trên thiết bị","โปรดเพิ่มเพลงนี้ในอุปกรณ์อีกครั้ง","Tambahkan musik ini kembali di perangkat ini"};break;
+   case "localAccess":values=new String[]{"無法讀取本機檔案，請重新連結音樂","无法读取本地文件，请重新链接","Cannot read this local file. Relink the track.","ファイルを読めません。再リンクしてください。","파일을 읽을 수 없습니다. 다시 연결하세요.","Fichier local illisible. Utilisez ⋯ pour le relier à nouveau ou réparer les liens.","No se puede leer el archivo local. Usa ⋯ para volver a vincularlo o reparar enlaces.","Não foi possível ler o arquivo local. Use ⋯ para vincular novamente ou reparar vínculos.","Lokale Datei nicht lesbar. Über ⋯ neu verknüpfen oder Musikverknüpfungen reparieren.","Không đọc được tệp trên máy. Dùng ⋯ để liên kết lại hoặc sửa liên kết nhạc.","อ่านไฟล์ในเครื่องไม่ได้ ใช้ ⋯ เพื่อเชื่อมโยงใหม่หรือซ่อมลิงก์เพลง","Tidak dapat membaca file lokal. Gunakan ⋯ untuk menautkan ulang atau memperbaiki tautan musik."};break;
+   case "localFormat":values=new String[]{"此音樂格式或內容無法解碼","此音乐格式或内容无法解码","Cannot decode this audio format or file","音楽形式または内容をデコードできません","음악 형식 또는 파일을 디코딩할 수 없습니다","Ce format audio ou ce fichier ne peut pas être décodé","No se puede decodificar este formato o archivo de audio","Não é possível decodificar este formato ou arquivo de áudio","Dieses Audioformat oder diese Datei kann nicht dekodiert werden","Không giải mã được định dạng hoặc tệp âm thanh này","ถอดรหัสรูปแบบเสียงหรือไฟล์นี้ไม่ได้","Format atau file audio ini tidak dapat didekode"};break;
+   case "localRead":values=new String[]{"本機檔案讀取失敗，請確認檔案或重新連結","本地文件读取失败，请检查或重新链接","Local file read failed. Check or relink the file.","読み取り失敗。ファイルを確認してください。","파일 읽기 실패. 파일을 확인하세요.","Échec de lecture du fichier local. Vérifiez-le ou reliez-le à nouveau.","Error al leer el archivo local. Revísalo o vuelve a vincularlo.","Falha ao ler o arquivo local. Verifique-o ou vincule novamente.","Lokale Datei konnte nicht gelesen werden. Datei prüfen oder neu verknüpfen.","Đọc tệp trên máy thất bại. Kiểm tra tệp hoặc liên kết lại.","อ่านไฟล์ในเครื่องไม่สำเร็จ โปรดตรวจสอบหรือเชื่อมโยงไฟล์ใหม่","Gagal membaca file lokal. Periksa atau tautkan ulang file."};break;
+   default:values=new String[]{"無法播放，請確認網址、網路或檔案","无法播放，请检查地址、网络或文件","Cannot play. Check the stream, network or file.","再生できません。URL・通信・ファイルを確認してください。","재생할 수 없습니다. 주소, 네트워크 또는 파일을 확인하세요","Lecture impossible. Vérifiez le flux, le réseau ou le fichier.","No se puede reproducir. Revisa la transmisión, la red o el archivo.","Não foi possível reproduzir. Verifique o fluxo, a rede ou o arquivo.","Wiedergabe nicht möglich. Stream, Netzwerk oder Datei prüfen.","Không thể phát. Kiểm tra luồng, mạng hoặc tệp.","เล่นไม่ได้ โปรดตรวจสอบสตรีม เครือข่าย หรือไฟล์","Tidak dapat memutar. Periksa streaming, jaringan, atau file."};
+  }return values[language(c)];
+ }
+}

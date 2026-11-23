@@ -1,0 +1,11 @@
+package com.amplayer.portable;
+import android.app.*;import android.os.*;import org.json.*;import java.util.concurrent.*;import java.util.concurrent.atomic.*;
+public class UpdateInstrumentation extends Instrumentation {
+ @Override public void onCreate(Bundle args){super.onCreate(args);start();}
+ @Override public void onStart(){Bundle result=new Bundle();try{
+  JSONArray providers=CatalogUpdater.sources(getTargetContext()).getJSONArray("providers");
+  for(int i=0;i<providers.length();i++){String id=providers.getJSONObject(i).getString("id");JSONObject prefs=Store.load(getTargetContext());prefs.put("primarySource",id).put("fallback",false).put("autoUpdate",false);Store.save(getTargetContext(),prefs.toString());CountDownLatch latch=new CountDownLatch(1);AtomicReference<JSONObject> status=new AtomicReference<>();CatalogUpdater.update(getTargetContext(),value->{status.set(value);latch.countDown();});if(!latch.await(100,TimeUnit.SECONDS))throw new Exception(id+" update timed out");Bundle report=new Bundle();report.putString("source_"+id,status.get().toString());sendStatus(0,report);if(!status.get().optBoolean("ok")||!status.get().optString("provider").equals(id))throw new Exception(id+" update failed");}
+  if(CatalogUpdater.publicStream("http://127.0.0.1/a")||CatalogUpdater.publicStream("javascript:alert(1)"))throw new Exception("Unsafe remote URL accepted");JSONArray parsed=CatalogUpdater.parseM3U("#EXTM3U\n#EXTINF:-1,Same\nhttps://example.test/a\n#EXTINF:-1,Same\nhttps://example.test/b\n#EXTINF:-1,Private\nhttp://192.168.0.1/a\n","TW","test",100);if(parsed.length()!=1)throw new Exception("M3U deduplication failed");
+  JSONObject prefs=Store.load(getTargetContext());prefs.put("primarySource","alon").put("fallback",true).put("autoUpdate",true);Store.save(getTargetContext(),prefs.toString());CatalogUpdater.configure(getTargetContext());if(getTargetContext().getSystemService(android.app.job.JobScheduler.class).getPendingJob(21001)==null)throw new Exception("Automatic job missing");result.putString("result","PASS: all three sources downloaded and parsed, duplicate and unsafe URLs rejected, daily background job scheduled");finish(Activity.RESULT_OK,result);
+ }catch(Exception e){result.putString("failure",e.toString());finish(Activity.RESULT_CANCELED,result);}}
+}

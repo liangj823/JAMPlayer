@@ -1,0 +1,8 @@
+(function(){
+ let sequence=0;const pending=new Map();
+ window.nativeReply=(id,value,error)=>{const job=pending.get(id);if(!job)return;pending.delete(id);error?job.reject(Error(error)):job.resolve(value);};
+ function request(name,value){return new Promise((resolve,reject)=>{const id=String(++sequence);pending.set(id,{resolve,reject});try{if(value===undefined)AMNative[name](id);else AMNative[name](id,JSON.stringify(value));}catch(e){pending.delete(id);reject(e);}});}
+ const read=name=>JSON.parse(AMNative[name]());
+ const metadata=files=>request('metadata',files);
+ window.playerAPI={platform:'android',musicAccess:()=>read('musicAccess'),requestMusicAccess:()=>request('requestMusicAccess'),scanMusic:()=>request('scanMusic'),openAllFiles:()=>AMNative.openAllFiles(),metadata,shared:()=>read('shared'),locale:()=>AMNative.locale(),languageChanged:()=>AMNative.languageChanged(),load:()=>read('load'),save:value=>{if(!AMNative.save(JSON.stringify(value)))throw Error('save_failed');return true;},pickAudio:()=>request('pickAudio'),importSettings:()=>request('importSettings'),exportSettings:settings=>request('exportSettings',{format:'AMPlayer',version:2,exportedAt:new Date().toISOString(),settings}),reset:()=>AMNative.reset(),play:item=>AMNative.play(JSON.stringify(item)),command:command=>AMNative.command(command),volume:value=>AMNative.volume(value),seek:value=>AMNative.seek(value),sleep:value=>AMNative.sleep(value),status:()=>read('status'),catalog:()=>read('catalog'),sources:()=>read('sources'),updateStatus:()=>read('updateStatus'),checkUpdates:()=>read('checkUpdates'),updateCatalog:()=>request('updateCatalog'),openSource:id=>AMNative.openSource(id)};
+})();

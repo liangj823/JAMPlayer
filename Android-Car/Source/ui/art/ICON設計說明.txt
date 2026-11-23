@@ -1,0 +1,10 @@
+AMPlayer 金屬拉絲圖示
+以內建圖片生成工具製作原創透明 PNG，未使用 API 金鑰或外部下載素材。
+用途：Android 啟動圖示與程式內品牌標記。
+原始尺寸：(1254, 1254)。圖檔保留透明背景。
+配色：石墨深灰、銀色金屬、青綠 LCD；細節為唱片旋鈕、播放螢幕、螺絲與金屬拉絲。
+Android：提供一般圖示、自適應圖示及 Android 13 單色主題圖示。
+圖示若啟用系統單色主題，依系統色彩顯示；正常圖示保留完整金屬材質。
+
+生成提示詞（內建模式）
+Use case: logo-brand. Asset type: production Android launcher icon artwork for AMPlayer, a retro digital radio and local music player. Create ONE original premium icon, front-facing, square composition on genuine transparent background, no surrounding scene or presentation mockup. A compact square hi-fi receiver emblem crafted from dark graphite brushed aluminum, a refined beveled silver metal rim, four tiny recessed corner screws, a single circular vinyl-disc / tuning dial on the left and a small recessed mint-green LCD with a clear simple play triangle on the right. Strong simple silhouette, broad readable shapes for a small app icon; restrained realistic horizontal metal brushing and tactile shallow relief, sophisticated restrained highlights, no harsh chrome or excessive gloss. This must match a charcoal brushed-metal Winamp-inspired UI. Palette only charcoal graphite, silver steel and muted mint cyan. No letters, no numbers, no words, no watermark. Object centered, occupies approximately 75% of square canvas in each dimension, ample transparent breathing room on all four sides, completely visible without clipping, symmetrical straight-on view, no perspective tilt. Deliver the finished icon artwork, not an icon sheet.

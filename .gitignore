@@ -1,0 +1,20 @@
+# Generated builds and machine-specific configuration
+**/.gradle/
+**/build/
+**/app/src/main/assets/
+**/local.properties
+**/signing/
+*.apk
+*.aab
+*.apks
+*.jks
+*.keystore
+*.p12
+*.pfx
+credentials*.json
+.env
+.env.*
+!*.example
+*.log
+.DS_Store
+Thumbs.db

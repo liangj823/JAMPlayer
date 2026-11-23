@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:id="@+id/notification_root" android:layout_width="match_parent" android:layout_height="48dp" android:orientation="horizontal" android:gravity="center_vertical" android:background="@drawable/notification_surface" android:paddingHorizontal="2dp">
+ <ImageView android:id="@+id/notification_cover" android:layout_width="40dp" android:layout_height="40dp" android:scaleType="centerCrop" android:contentDescription="JAMPlayer"/>
+ <LinearLayout android:id="@+id/notification_copy" android:layout_width="0dp" android:layout_weight="1" android:layout_height="match_parent" android:layout_marginStart="9dp" android:orientation="vertical" android:gravity="center_vertical">
+  <TextView android:id="@+id/notification_title" android:layout_width="match_parent" android:layout_height="wrap_content" android:includeFontPadding="false" android:textColor="#F7F9FB" android:textSize="15sp" android:textStyle="bold" android:maxLines="1" android:ellipsize="end"/>
+  <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginTop="3dp">
+   <TextView android:id="@+id/notification_subtitle" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:includeFontPadding="false" android:textColor="#B6BEC9" android:textSize="11sp" android:maxLines="1" android:ellipsize="end"/>
+   <Chronometer android:id="@+id/notification_timer" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="4dp" android:includeFontPadding="false" android:textColor="#A5E7D9" android:textSize="11sp" android:fontFamily="sans-serif-medium"/>
+  </LinearLayout>
+ </LinearLayout>
+ <ImageButton android:id="@+id/notification_play" android:layout_width="40dp" android:layout_height="40dp" android:layout_marginStart="6dp" android:padding="9dp" android:background="@android:color/transparent" android:src="@drawable/notification_play" android:contentDescription="Play / pause"/>
+ <ImageButton android:id="@+id/notification_next" android:layout_width="32dp" android:layout_height="40dp" android:padding="7dp" android:background="@android:color/transparent" android:src="@drawable/notification_next" android:contentDescription="Next"/>
+</LinearLayout>
