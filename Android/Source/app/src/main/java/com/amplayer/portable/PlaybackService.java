@@ -46,7 +46,7 @@ public class PlaybackService extends Service {
  }
  private static AudioAttributes attributes(){return new AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_MEDIA).setContentType(AudioAttributes.CONTENT_TYPE_MUSIC).build();}
  private final Runnable tick=new Runnable(){public void run(){if(preparing&&bufferingSince>0&&SystemClock.elapsedRealtime()-bufferingSince>25000){fail("電台連線逾時");}
- if(backgroundDeadline>0&&SystemClock.elapsedRealtime()>=backgroundDeadline){stopSelf();return;}if(sleepDeadline>0&&SystemClock.elapsedRealtime()>=sleepDeadline){sleepDeadline=0;pause();}updateSnapshot();handler.postDelayed(this,500);}};
+ if(sleepDeadline>0){backgroundDeadline=0;if(SystemClock.elapsedRealtime()>=sleepDeadline){sleepDeadline=0;pause();}}else if(backgroundDeadline>0&&SystemClock.elapsedRealtime()>=backgroundDeadline){stopSelf();return;}updateSnapshot();handler.postDelayed(this,500);}};
  @Override public int onStartCommand(Intent intent,int flags,int startId){
   String action=intent==null?"":intent.getAction();
   // The foreground notification must exist before requesting focus or preparing.
@@ -58,7 +58,7 @@ public class PlaybackService extends Service {
    else if("next".equals(action))change(1);
    else if("previous".equals(action))change(-1);
    else if("stop".equals(action))stopSelf();
-   else if("sleep".equals(action)){double minutes=intent.getDoubleExtra("sleepMinutes",0);sleepDeadline=minutes>0?SystemClock.elapsedRealtime()+(long)(minutes*60000):0;updateSnapshot();notifyState();}
+   else if("sleep".equals(action)){double minutes=intent.getDoubleExtra("sleepMinutes",0);if(Double.isFinite(minutes)&&minutes>=0&&minutes<=240){sleepDeadline=minutes>0?SystemClock.elapsedRealtime()+(long)(minutes*60000):0;backgroundDeadline=0;if(minutes==0&&(isPlaying()||preparing))armBackground();updateSnapshot();notifyState();}}
   }catch(Exception e){fail("無法播放此音訊");}
   return START_NOT_STICKY;
  }
@@ -99,8 +99,8 @@ public class PlaybackService extends Service {
  }
  private boolean isPlaying(){try{return player!=null&&!preparing&&player.isPlaying();}catch(Exception e){return false;}}
  private void pause(){resumeOnFocus=false;if(retry!=null){handler.removeCallbacks(retry);retry=null;}if(preparing)releasePlayer();else if(isPlaying())player.pause();audioManager.abandonAudioFocusRequest(focus);updateSnapshot();notifyState();}
- private void armBackground(){if(!Store.load(this).optBoolean("backgroundAutoOff",true)){backgroundDeadline=0;return;}if(!appForeground&&backgroundDeadline==0)backgroundDeadline=SystemClock.elapsedRealtime()+BACKGROUND_LIMIT;}
- static void refreshBackgroundPolicy(){if(current==null)return;if(appForeground||!Store.load(current).optBoolean("backgroundAutoOff",true))current.backgroundDeadline=0;else if(current.isPlaying()||current.preparing)current.armBackground();current.updateSnapshot();current.notifyState();}
+ private void armBackground(){if(sleepDeadline>0||appForeground){backgroundDeadline=0;return;}if(!Store.load(this).optBoolean("backgroundAutoOff",true)){backgroundDeadline=0;return;}if(!appForeground&&backgroundDeadline==0)backgroundDeadline=SystemClock.elapsedRealtime()+BACKGROUND_LIMIT;}
+ static void refreshBackgroundPolicy(){if(current==null)return;if(current.sleepDeadline>0||appForeground||!Store.load(current).optBoolean("backgroundAutoOff",true))current.backgroundDeadline=0;else if(current.isPlaying()||current.preparing)current.armBackground();current.updateSnapshot();current.notifyState();}
  static void setForeground(boolean value){appForeground=value;if(current!=null){if(value)current.backgroundDeadline=0;else if(current.isPlaying()||current.preparing)current.armBackground();current.updateSnapshot();current.notifyState();}}
  private void resume(){armBackground();if(item==null){JSONObject last=Store.load(this).optJSONObject("lastPlayed");if(last!=null)play(last);else stopSelf();return;}if(("favoriteMusic".equals(playbackContext)||"playlist".equals(playbackContext))&&playQueue(Store.load(this)).stream().noneMatch(x->x.optString("path").equals(item.optString("path")))){change(1);return;}if(player==null){retryCount=0;play(item);return;}if(!preparing&&audioManager.requestAudioFocus(focus)==AudioManager.AUDIOFOCUS_REQUEST_GRANTED){player.play();error="";updateSnapshot();notifyState();}}
  private JSONObject activePlaylist(JSONObject state){JSONArray groups=state.optJSONArray("playlists");if(groups!=null)for(int i=0;i<groups.length();i++){JSONObject p=groups.optJSONObject(i);if(p!=null&&activePlaylistId.equals(p.optString("id")))return p;}return new JSONObject();}
@@ -128,7 +128,7 @@ public class PlaybackService extends Service {
  static void refreshLanguage(){if(current!=null){NotificationManager nm=current.getSystemService(NotificationManager.class);nm.createNotificationChannel(new NotificationChannel("playback",L10n.text(current,"playback"),NotificationManager.IMPORTANCE_LOW));if(!current.errorKey.isEmpty())current.error=L10n.text(current,current.errorKey);current.notifyState();current.updateSnapshot();}}
  private void updateSnapshot(){try{JSONObject s=new JSONObject().put("navigationRevision",navigationRevision).put("radioQueueScope",radioQueueScope).put("radioQueueCountry",radioQueueCountry).put("playbackContext",playbackContext).put("activePlaylistId",activePlaylistId).put("playing",isPlaying()).put("preparing",preparing).put("error",error).put("trackTitle",liveTitle).put("trackArtist",liveArtist).put("errorKey",errorKey).put("retrying",retry!=null).put("retryCount",retryCount).put("sleepDeadline",wallDeadline(sleepDeadline)).put("backgroundDeadline",wallDeadline(backgroundDeadline));if(item!=null)s.put("item",item);if(radioMemory!=null)s.put("lastRadioPlayed",radioMemory);if(player!=null&&!preparing){s.put("position",player.getCurrentPosition());s.put("duration",Math.max(0,player.getDuration()));}snapshot=s.toString();}catch(Exception ignored){}}
  private PendingIntent action(String name,int id){return PendingIntent.getService(this,id,new Intent(this,PlaybackService.class).setAction(name),PendingIntent.FLAG_UPDATE_CURRENT|PendingIntent.FLAG_IMMUTABLE);}
- private long timerEnd(){return sleepDeadline>0&&backgroundDeadline>0?Math.min(sleepDeadline,backgroundDeadline):Math.max(sleepDeadline,backgroundDeadline);}
+ private long timerEnd(){return sleepDeadline>0?sleepDeadline:backgroundDeadline;}
  private String countdown(){long remaining=Math.max(0,(timerEnd()-SystemClock.elapsedRealtime()+999)/1000);return String.format(Locale.ROOT,"%02d:%02d:%02d",remaining/3600,(remaining/60)%60,remaining%60);}
  private static long wallDeadline(long elapsed){return elapsed==0?0:System.currentTimeMillis()+Math.max(0,elapsed-SystemClock.elapsedRealtime());}
  private static android.graphics.Bitmap decodeNotificationCover(byte[] data){
@@ -153,7 +153,7 @@ public class PlaybackService extends Service {
   android.widget.RemoteViews view=new android.widget.RemoteViews(getPackageName(),expanded?R.layout.notification_expanded:R.layout.notification_compact);
   view.setTextViewText(R.id.notification_title,notificationTitle());view.setTextViewText(R.id.notification_subtitle,notificationSubtitle());view.setImageViewBitmap(R.id.notification_cover,notificationArtwork());
   long end=timerEnd();view.setViewVisibility(R.id.notification_timer,end>0?android.view.View.VISIBLE:android.view.View.GONE);view.setChronometer(R.id.notification_timer,end>0?end:SystemClock.elapsedRealtime(),null,end>0);view.setChronometerCountDown(R.id.notification_timer,true);
-  if(expanded){view.setViewVisibility(R.id.notification_timer_row,end>0?android.view.View.VISIBLE:android.view.View.GONE);view.setTextViewText(R.id.notification_timer_label,L10n.text(this,end==backgroundDeadline?"backgroundClose":"sleep"));view.setOnClickPendingIntent(R.id.notification_previous,action("previous",1));view.setOnClickPendingIntent(R.id.notification_stop,action("stop",4));view.setContentDescription(R.id.notification_stop,L10n.text(this,"close"));view.setViewVisibility(R.id.notification_dots,isPlaying()||preparing?android.view.View.VISIBLE:android.view.View.INVISIBLE);}
+  if(expanded){view.setViewVisibility(R.id.notification_timer_row,end>0?android.view.View.VISIBLE:android.view.View.GONE);view.setTextViewText(R.id.notification_timer_label,L10n.text(this,sleepDeadline>0?"sleep":"backgroundClose"));view.setOnClickPendingIntent(R.id.notification_previous,action("previous",1));view.setOnClickPendingIntent(R.id.notification_stop,action("stop",4));view.setContentDescription(R.id.notification_stop,L10n.text(this,"close"));view.setViewVisibility(R.id.notification_dots,isPlaying()||preparing?android.view.View.VISIBLE:android.view.View.INVISIBLE);}
   view.setImageViewResource(R.id.notification_play,isPlaying()?R.drawable.notification_pause:R.drawable.notification_play);view.setOnClickPendingIntent(R.id.notification_play,action(isPlaying()?"pause":"play",2));view.setContentDescription(R.id.notification_play,L10n.text(this,isPlaying()?"pause":"play"));view.setOnClickPendingIntent(R.id.notification_next,action("next",3));view.setContentDescription(R.id.notification_next,L10n.text(this,"next"));return view;
  }
  private Notification notification(){

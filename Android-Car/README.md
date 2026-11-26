@@ -1,8 +1,20 @@
-# JAMPlayer Car 1.0.4
+# JAMPlayer Car 1.0.5
 
 獨立 Android 車機版，Android 12 以上可安裝。安裝識別 com.jayw.jamplayer.car，可與手機版 JAMPlayer 共存。
 
-## 1.0.4 修正
+## 1.0.5 修正
+
+手動休眠優先，最長 4 小時
+
+- 手動休眠提供 15、30、45、60、90、120、180、240 分鐘，或自訂 1–240 分鐘。
+- 有手動休眠時暫停背景一小時自動關閉限制，以手動時間為準。
+- 回到前景、再切到背景、熄屏亮屏與切換曲目，手動休眠都沿用原到期時間，不重設、不歸零。
+- 沒有手動休眠時，背景一小時開關照常生效；回到前景僅清除背景倒數。
+- 背景取消手動定時，若背景開關開啟且仍在播放，從取消時重新倒數一小時；前景取消則不啟動背景倒數。
+- 手動定時到期暫停後不重新啟動一小時倒數；車機亮屏／回到前景也不會自動重新播放，手動按播放可恢復。
+- 通知欄與主 UI 使用同一個真正生效的倒數，12 種語言說明同步更新。
+
+## 1.0.4 修正（歷史）
 
 上下首與播放範圍修正
 
@@ -63,6 +75,6 @@ JSON 不包含音樂檔本身，也不能搬移另一台裝置的 Android 讀取
 - APK：可安裝的簽署正式版。
 - Preview：介面預覽。
 
-版本 1.0.4（10004）。minSdk 31，targetSdk 35，compileSdk 37。車機版採 target 35 以保留新系統的大螢幕橫式相容行為；較新或客製系統仍可能依廠商規則調整方向。參考 [Android 官方方向與視窗相容性說明](https://developer.android.com/develop/adaptive-apps/guides/app-orientation-aspect-ratio-resizability)。
+版本 1.0.5（10005）。minSdk 31，targetSdk 35，compileSdk 37。車機版採 target 35 以保留新系統的大螢幕橫式相容行為；較新或客製系統仍可能依廠商規則調整方向。參考 [Android 官方方向與視窗相容性說明](https://developer.android.com/develop/adaptive-apps/guides/app-orientation-aspect-ratio-resizability)。
 
 Developed by Jay.W · Copyright © 2026. All rights reserved.
