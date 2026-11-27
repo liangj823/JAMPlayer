@@ -10,7 +10,7 @@ public class CarInstrumentation extends Instrumentation {
  private void report(String key,String value){Bundle b=new Bundle();b.putString(key,value);sendStatus(0,b);}
  private void startNative(JSONObject item)throws Exception{runOnMainSync(()->getTargetContext().startForegroundService(new Intent(getTargetContext(),PlaybackService.class).setAction("item").putExtra("item",item.toString())));}
 
- private void shell(String command)throws Exception{try(android.os.ParcelFileDescriptor fd=getUiAutomation().executeShellCommand(command);FileInputStream in=new FileInputStream(fd.getFileDescriptor())){in.readAllBytes();}}
+ private void shell(String command)throws Exception{try(android.os.ParcelFileDescriptor fd=getUiAutomation().executeShellCommand(command);FileInputStream in=new FileInputStream(fd.getFileDescriptor())){byte[] buffer=new byte[4096];while(in.read(buffer)!=-1){}}}
  private void stopService()throws Exception{runOnMainSync(()->getTargetContext().stopService(new Intent(getTargetContext(),PlaybackService.class)));for(int n=0;n<50;n++){if("{}".equals(PlaybackService.status()))return;Thread.sleep(100);}throw new Exception("Service did not stop");}
  private void open()throws Exception{activity=startActivitySync(new Intent(Intent.ACTION_MAIN).setClass(getTargetContext(),MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));runOnMainSync(()->web=find(activity.getWindow().getDecorView()));waitJS("typeof state!=='undefined'&&!!state");}
  private void closeActivity()throws Exception{runOnMainSync(activity::finish);Thread.sleep(700);activity=null;}

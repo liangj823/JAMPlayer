@@ -2,7 +2,7 @@ plugins { id 'com.android.application' }
 android {
  namespace 'com.amplayer.portable'
  compileSdk 37
- defaultConfig { applicationId 'com.jayw.jamplayer.car'; minSdk 31; targetSdk 35; versionCode 10005; versionName '1.0.5'; testInstrumentationRunner 'com.amplayer.portable.CarInstrumentation' }
+ defaultConfig { applicationId 'com.jayw.jamplayer.car'; minSdk 26; targetSdk 35; versionCode 10006; versionName '1.0.6'; testInstrumentationRunner 'com.amplayer.portable.CarInstrumentation' }
  def releaseKeyPath = providers.environmentVariable('JAMPLAYER_KEYSTORE_PATH').getOrElse('')
  signingConfigs {
   if (releaseKeyPath) {

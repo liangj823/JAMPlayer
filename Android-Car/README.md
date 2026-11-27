@@ -1,6 +1,11 @@
-# JAMPlayer Car 1.0.5
+# JAMPlayer Car 1.0.6
 
-獨立 Android 車機版，Android 12 以上可安裝。安裝識別 com.jayw.jamplayer.car，可與手機版 JAMPlayer 共存。
+獨立 Android 車機版，Android 8.0 以上可安裝。安裝識別 com.jayw.jamplayer.car，可與手機版 JAMPlayer 共存。
+
+## 1.0.6 修正
+
+- 將最低系統需求由 Android 12 降為 Android 8.0，修正 Android 10 車機無法安裝的問題。
+- 保留原車機介面、記憶續播與手動休眠功能。
 
 ## 1.0.5 修正
 
@@ -75,6 +80,6 @@ JSON 不包含音樂檔本身，也不能搬移另一台裝置的 Android 讀取
 - APK：可安裝的簽署正式版。
 - Preview：介面預覽。
 
-版本 1.0.5（10005）。minSdk 31，targetSdk 35，compileSdk 37。車機版採 target 35 以保留新系統的大螢幕橫式相容行為；較新或客製系統仍可能依廠商規則調整方向。參考 [Android 官方方向與視窗相容性說明](https://developer.android.com/develop/adaptive-apps/guides/app-orientation-aspect-ratio-resizability)。
+版本 1.0.6（10006）。minSdk 26，targetSdk 35，compileSdk 37。車機版採 target 35 以保留新系統的大螢幕橫式相容行為；較新或客製系統仍可能依廠商規則調整方向。參考 [Android 官方方向與視窗相容性說明](https://developer.android.com/develop/adaptive-apps/guides/app-orientation-aspect-ratio-resizability)。
 
 Developed by Jay.W · Copyright © 2026. All rights reserved.
